@@ -1,3 +1,5 @@
+# pashalka
+
 #!/usr/bin/env -S python3 -B
 
 from time import time
