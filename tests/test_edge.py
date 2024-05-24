@@ -29,7 +29,8 @@ class TestVoid(unittest.TestCase):
         n = R3(0.0, 0.0, 1.0)
         self.assertEqual(
             SegmentApproxMatcher(s.intersect_edge_with_normal(a, n)),
-            Segment(0.0, 1.0))
+            Segment(0.0, 1.0),
+        )
 
     # Если ребро лежит вне полупространства, то пересечение пусто
     def test_intersect_02(self):
@@ -53,53 +54,86 @@ class TestVoid(unittest.TestCase):
         n = R3(0.0, 0.0, 1.0)
         self.assertEqual(
             SegmentApproxMatcher(s.intersect_edge_with_normal(a, n)),
-            Segment(0.0, 0.5))
+            Segment(0.0, 0.5),
+        )
 
     # Здесь только вторая половина отрезка принадлежит полупространству
     def test_intersect_05(self):
         s = Edge(R3(0.0, 0.0, 1.0), R3(1.0, 0.0, -1.0))
         a = R3(1.0, 1.0, 0.0)
         n = R3(0.0, 0.0, 1.0)
-        self.assertEqual(SegmentApproxMatcher(s.intersect_edge_with_normal(
-            a, n)), Segment(0.5, 1.0))
+        self.assertEqual(
+            SegmentApproxMatcher(s.intersect_edge_with_normal(a, n)),
+            Segment(0.5, 1.0),
+        )
 
     # Грань не затеняет ребро, принадлежащее этой же грани
     def test_shadow_01(self):
         s = Edge(R3(0.0, 0.0, 0.0), R3(1.0, 1.0, 0.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(SegmentApproxMatcher(s.gaps[0]), Segment(0.0, 1.0))
 
     # Грань не затеняет ребро, расположенное выше этой грани
     def test_shadow_02(self):
         s = Edge(R3(0.0, 0.0, 1.0), R3(1.0, 1.0, 1.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(SegmentApproxMatcher(s.gaps[0]), Segment(0.0, 1.0))
 
     # Грань полностью затеняет ребро, расположенное под этой гранью
     def test_shadow_03(self):
         s = Edge(R3(0.0, 0.0, -1.0), R3(1.0, 1.0, -1.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(len(s.gaps), 0)
 
     # На длинном ребре, лежащем ниже грани, образуется ровно два просвета
     def test_shadow_04(self):
         s = Edge(R3(-5.0, -5.0, -1.0), R3(3.0, 3.0, -1.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(len(s.gaps), 2)
 
     # «Вертикальная» грань не затеняет ничего
     def test_shadow_05(self):
         s = Edge(R3(0.0, 0.0, 0.0), R3(1.0, 1.0, 0.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(0.0, 0.0, 1.0),
-                   R3(0.0, 1.0, 1.0), R3(0.0, 1.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(0.0, 0.0, 1.0),
+                R3(0.0, 1.0, 1.0),
+                R3(0.0, 1.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(len(s.gaps), 1)
         self.assertEqual(SegmentApproxMatcher(s.gaps[0]), Segment(0.0, 1.0))
@@ -107,8 +141,14 @@ class TestVoid(unittest.TestCase):
     # Перпендикулярная грань не затеняет ничего
     def test_shadow_06(self):
         s = Edge(R3(0.0, 0.0, 0.0), R3(0.0, 0.0, -1.0))
-        f = Facet([R3(0.0, 0.0, 0.0), R3(1.0, 0.0, 0.0),
-                   R3(1.0, 1.0, 0.0), R3(0.0, 1.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(1.0, 0.0, 0.0),
+                R3(1.0, 1.0, 0.0),
+                R3(0.0, 1.0, 0.0),
+            ]
+        )
         s.shadow(f)
         self.assertEqual(len(s.gaps), 1)
         self.assertEqual(SegmentApproxMatcher(s.gaps[0]), Segment(0.0, 1.0))

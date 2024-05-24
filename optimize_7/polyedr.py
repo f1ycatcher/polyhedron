@@ -8,7 +8,8 @@ from common.tk_drawer import TkDrawer
 
 
 class Segment:
-    """ Одномерный отрезок """
+    """Одномерный отрезок"""
+
     # Параметры конструктора: начало и конец отрезка (числа)
 
     def __init__(self, beg, fin):
@@ -29,13 +30,15 @@ class Segment:
     # Разность отрезков
     # Разность двух отрезков всегда является списком из двух отрезков!
     def subtraction(self, other):
-        return [Segment(
-            self.beg, self.fin if self.fin < other.beg else other.beg),
-            Segment(self.beg if self.beg > other.fin else other.fin, self.fin)]
+        return [
+            Segment(self.beg, self.fin if self.fin < other.beg else other.beg),
+            Segment(self.beg if self.beg > other.fin else other.fin, self.fin),
+        ]
 
 
 class Edge:
-    """ Ребро полиэдра """
+    """Ребро полиэдра"""
+
     # Начало и конец стандартного одномерного отрезка
     SBEG, SFIN = 0.0, 1.0
 
@@ -52,8 +55,9 @@ class Edge:
             return
 
         # «Низкие» и «вертикальные» грани не могут затенить ребро
-        if ((self.beg.z >= facet.zmax and self.fin.z >= facet.zmax) or
-                facet.is_vertical()):
+        if (
+            self.beg.z >= facet.zmax and self.fin.z >= facet.zmax
+        ) or facet.is_vertical():
             return
 
         # Нахождение одномерной тени на ребре
@@ -65,13 +69,14 @@ class Edge:
 
         shade.intersect(
             self.intersect_edge_with_normal(
-                facet.vertexes[0], facet.h_normal()))
+                facet.vertexes[0], facet.h_normal()
+            )
+        )
         if shade.is_degenerate():
             return
         # Преобразование списка «просветов», если тень невырождена
         gaps = [s.subtraction(shade) for s in self.gaps]
-        self.gaps = [
-            s for s in reduce(add, gaps, []) if not s.is_degenerate()]
+        self.gaps = [s for s in reduce(add, gaps, []) if not s.is_degenerate()]
 
     # Преобразование одномерных координат в трёхмерные
     def r3(self, t):
@@ -85,12 +90,13 @@ class Edge:
             return Segment(Edge.SFIN, Edge.SBEG)
         if f0 < 0.0 and f1 < 0.0:
             return Segment(Edge.SBEG, Edge.SFIN)
-        x = - f0 / (f1 - f0)
+        x = -f0 / (f1 - f0)
         return Segment(Edge.SBEG, x) if f0 < 0.0 else Segment(x, Edge.SFIN)
 
 
 class Facet:
-    """ Грань полиэдра """
+    """Грань полиэдра"""
+
     # Параметры конструктора: список вершин
 
     def __init__(self, vertexes):
@@ -116,11 +122,12 @@ class Facet:
 
     # Предкомпиляция грани
     def precompile(self):
-        self._center = sum(self.vertexes, R3(0.0, 0.0, 0.0)
-                           ) * (1.0 / len(self.vertexes))
-        n = (
-            self.vertexes[1] - self.vertexes[0]).cross(
-            self.vertexes[2] - self.vertexes[0])
+        self._center = sum(self.vertexes, R3(0.0, 0.0, 0.0)) * (
+            1.0 / len(self.vertexes)
+        )
+        n = (self.vertexes[1] - self.vertexes[0]).cross(
+            self.vertexes[2] - self.vertexes[0]
+        )
         self._h_normal = n * (-1.0) if n.dot(Polyedr.V) < 0.0 else n
         self._v_normals = [self._vert(x) for x in range(len(self.vertexes))]
         self._is_vertical = self.h_normal().dot(Polyedr.V) == 0.0
@@ -133,12 +140,16 @@ class Facet:
     # Вспомогательный метод
     def _vert(self, k):
         n = (self.vertexes[k] - self.vertexes[k - 1]).cross(Polyedr.V)
-        return n * \
-            (-1.0) if n.dot(self.vertexes[k - 1] - self.center()) < 0.0 else n
+        return (
+            n * (-1.0)
+            if n.dot(self.vertexes[k - 1] - self.center()) < 0.0
+            else n
+        )
 
 
 class Polyedr:
-    """ Полиэдр """
+    """Полиэдр"""
+
     # вектор проектирования
     V = R3(0.0, 0.0, 1.0)
 
@@ -164,8 +175,9 @@ class Polyedr:
                 elif i < nv + 2:
                     # задание всех вершин полиэдра
                     x, y, z = (float(x) for x in line.split())
-                    self.vertexes.append(R3(x, y, z).rz(
-                        alpha).ry(beta).rz(gamma) * c)
+                    self.vertexes.append(
+                        R3(x, y, z).rz(alpha).ry(beta).rz(gamma) * c
+                    )
                 else:
                     # вспомогательный массив
                     buf = line.split()
@@ -190,21 +202,28 @@ class Polyedr:
     # Оптимизация
     def optimize(self):
         stage_time = time()
-        result = "   Удаление дубликатов рёбер\n" + \
-            "     Рёбер до    : %6d\n" % len(self.edges)
+        result = (
+            "   Удаление дубликатов рёбер\n"
+            + "     Рёбер до    : %6d\n" % len(self.edges)
+        )
         self.edges_uniq()
-        result += "     Рёбер после : %6d\n" % len(self.edges) + \
-            "     Время       : %6.2f сек.\n" % (time() - stage_time)
+        result += "     Рёбер после : %6d\n" % len(
+            self.edges
+        ) + "     Время       : %6.2f сек.\n" % (time() - stage_time)
         stage_time = time()
         for f in self.facets:
             f.precompile()
-        result += "   Предкомпиляция граней\n" + \
-            "     Время       : %6.2f сек.\n" % (time() - stage_time)
+        result += (
+            "   Предкомпиляция граней\n"
+            + "     Время       : %6.2f сек.\n" % (time() - stage_time)
+        )
         stage_time = time()
         self.facets_nests()
-        result += "   Гнездование граней\n" + \
-            "     Размер гнёзд: %6.2f\n" % self.step + \
-            "     Время       : %6.2f сек." % (time() - stage_time)
+        result += (
+            "   Гнездование граней\n"
+            + "     Размер гнёзд: %6.2f\n" % self.step
+            + "     Время       : %6.2f сек." % (time() - stage_time)
+        )
         return result
 
     # «Умное» нахождение «просветов» на ребре
@@ -240,8 +259,12 @@ class Polyedr:
         self.nests = {}
         # Вычисление оптимального размера гнёзд сетки
         edges = [self.edges[randrange(len(self.edges))] for i in range(COUNT)]
-        self.step = sum((sqrt((e.fin.x - e.beg.x)**2 + (e.fin.y - e.beg.y)**2)
-                         for e in edges)) / (2 * COUNT)
+        self.step = sum(
+            (
+                sqrt((e.fin.x - e.beg.x) ** 2 + (e.fin.y - e.beg.y) ** 2)
+                for e in edges
+            )
+        ) / (2 * COUNT)
         for f in self.facets:
             for i in self.to_range(f.xmin, f.xmax):
                 for j in self.to_range(f.ymin, f.ymax):

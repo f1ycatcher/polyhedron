@@ -46,10 +46,20 @@ class TestVoid(unittest.TestCase):
 
     # Нормали для квадратной грани
     def test_v_normal02(self):
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
-        normals = [R3(-1.0, 0.0, 0.0), R3(0.0, -1.0, 0.0),
-                   R3(1.0, 0.0, 0.0), R3(0.0, 1.0, 0.0)]
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
+        normals = [
+            R3(-1.0, 0.0, 0.0),
+            R3(0.0, -1.0, 0.0),
+            R3(1.0, 0.0, 0.0),
+            R3(0.0, 1.0, 0.0),
+        ]
         for t in zip(f.v_normals(), normals):
             self.assertEqual(R3CollinearMatcher(t[0]), t[1])
 
@@ -62,8 +72,14 @@ class TestVoid(unittest.TestCase):
 
     # Центр квадрата
     def test_center01(self):
-        f = Facet([R3(0.0, 0.0, 0.0), R3(2.0, 0.0, 0.0),
-                   R3(2.0, 2.0, 0.0), R3(0.0, 2.0, 0.0)])
+        f = Facet(
+            [
+                R3(0.0, 0.0, 0.0),
+                R3(2.0, 0.0, 0.0),
+                R3(2.0, 2.0, 0.0),
+                R3(0.0, 2.0, 0.0),
+            ]
+        )
         self.assertEqual(R3ApproxMatcher(f.center()), (R3(1.0, 1.0, 0.0)))
 
     # Центр треугольника

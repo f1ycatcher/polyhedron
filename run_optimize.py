@@ -3,13 +3,16 @@
 from time import time
 from common.tk_drawer import TkDrawer, x, y
 import sys
+
 try:
-    exec(f'from optimize_{sys.argv[1]}.polyedr import Polyedr')
+    exec(f"from optimize_{sys.argv[1]}.polyedr import Polyedr")
 except (IndexError, ModuleNotFoundError):
-    print("\nНеобходимо указание варианта оптимизации от 1 до 7, например,\n"
-          "    ./run_optimize 1\n"
-          "или\n"
-          "    python run_optimize 1\n")
+    print(
+        "\nНеобходимо указание варианта оптимизации от 1 до 7, например,\n"
+        "    ./run_optimize 1\n"
+        "или\n"
+        "    python run_optimize 1\n"
+    )
     exit(1)
 
 
@@ -17,7 +20,7 @@ def draw_line(self, p, q):
     self.canvas.create_line(x(p), y(p), x(q), y(q), fill="black", width=1)
 
 
-setattr(TkDrawer, 'draw_line', draw_line)
+setattr(TkDrawer, "draw_line", draw_line)
 
 tk = TkDrawer()
 
@@ -33,8 +36,10 @@ try:
         print("Оптимизация ---------------------------> ", end="", flush=True)
         optimize_statistics = poly.optimize()
         start_shadow_time = time()
-        print("%6.2f сек.\n%s" % (start_shadow_time -
-                                  start_optimize_time, optimize_statistics))
+        print(
+            "%6.2f сек.\n%s"
+            % (start_shadow_time - start_optimize_time, optimize_statistics)
+        )
         print("Удаление невидимых линий --------------> ", end="", flush=True)
         poly.shadow()
         start_draw_time = time()

@@ -1,6 +1,6 @@
-# pashalka
-
 #!/usr/bin/env -S python3 -B
+
+# pashalka
 
 from time import time
 from common.tk_drawer import TkDrawer
