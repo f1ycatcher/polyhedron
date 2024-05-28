@@ -1,7 +1,7 @@
 import unittest
 from pytest import approx
 
-from noshadow.polyedr import Polyedr
+from shadow.polyedr import Polyedr
 
 
 class TestPolyedr(unittest.TestCase):
