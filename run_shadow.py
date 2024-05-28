@@ -1,6 +1,6 @@
-# pashalka
-
 #!/usr/bin/env -S python3 -B
+
+# pashalka
 
 from time import time
 from common.tk_drawer import TkDrawer
@@ -13,7 +13,7 @@ try:
         print("=============================================================")
         print(f"Начало работы с полиэдром '{name}'")
         start_time = time()
-        Polyedr(f"data/{name}.geom").draw(tk)
+        Polyedr(f"data/{name}.geom").draw(tk).print_sum_of_good_edges()
         delta_time = time() - start_time
         print(f"Изображение полиэдра '{name}' заняло {delta_time} сек.")
         input("Hit 'Return' to continue -> ")

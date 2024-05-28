@@ -96,9 +96,12 @@ class TestSegment(unittest.TestCase):
         a = Segment(0.0, 1.0)
         b = Segment(0.0, 0.5)
         c = Segment(0.5, 1.0)
-        self.assertTrue(all(t.is_degenerate() for
-                            t in flatten(s.subtraction(c) for
-                                         s in a.subtraction(b))))
+        self.assertTrue(
+            all(
+                t.is_degenerate()
+                for t in flatten(s.subtraction(c) for s in a.subtraction(b))
+            )
+        )
 
     # Если из отрезка вычесть его половинку, а затем ещё один небольшой
     # отрезочек, то невырожденным будет только один из итоговых отрезков
@@ -106,9 +109,17 @@ class TestSegment(unittest.TestCase):
         a = Segment(0.0, 1.0)
         b = Segment(0.0, 0.5)
         c = Segment(0.6, 1.0)
-        self.assertEqual(len(list(not t.is_degenerate() for
-                                  t in flatten(s.subtraction(c) for
-                                               s in a.subtraction(b)))), 1)
+        self.assertEqual(
+            len(
+                list(
+                    not t.is_degenerate()
+                    for t in flatten(
+                        s.subtraction(c) for s in a.subtraction(b)
+                    )
+                )
+            ),
+            1,
+        )
 
     # Если из отрезка вычесть два небольших отрезочка, то невырожденными
     # будут все три итоговых отрезка
@@ -116,6 +127,14 @@ class TestSegment(unittest.TestCase):
         a = Segment(0.0, 1.0)
         b = Segment(0.1, 0.2)
         c = Segment(0.4, 0.8)
-        self.assertEqual(len(list(not t.is_degenerate() for
-                                  t in flatten(s.subtraction(c) for
-                                               s in a.subtraction(b)))), 3)
+        self.assertEqual(
+            len(
+                list(
+                    not t.is_degenerate()
+                    for t in flatten(
+                        s.subtraction(c) for s in a.subtraction(b)
+                    )
+                )
+            ),
+            3,
+        )

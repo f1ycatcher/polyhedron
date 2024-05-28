@@ -1,4 +1,4 @@
-from math import pi
+from math import pi, sqrt
 from functools import reduce
 from operator import add
 from common.r3 import R3
@@ -6,7 +6,8 @@ from common.tk_drawer import TkDrawer
 
 
 class Segment:
-    """ Одномерный отрезок """
+    """Одномерный отрезок"""
+
     # Параметры конструктора: начало и конец отрезка (числа)
 
     def __init__(self, beg, fin):
@@ -27,13 +28,15 @@ class Segment:
     # Разность отрезков
     # Разность двух отрезков всегда является списком из двух отрезков!
     def subtraction(self, other):
-        return [Segment(
-            self.beg, self.fin if self.fin < other.beg else other.beg),
-            Segment(self.beg if self.beg > other.fin else other.fin, self.fin)]
+        return [
+            Segment(self.beg, self.fin if self.fin < other.beg else other.beg),
+            Segment(self.beg if self.beg > other.fin else other.fin, self.fin),
+        ]
 
 
 class Edge:
-    """ Ребро полиэдра """
+    """Ребро полиэдра"""
+
     # Начало и конец стандартного одномерного отрезка
     SBEG, SFIN = 0.0, 1.0
 
@@ -57,13 +60,14 @@ class Edge:
 
         shade.intersect(
             self.intersect_edge_with_normal(
-                facet.vertexes[0], facet.h_normal()))
+                facet.vertexes[0], facet.h_normal()
+            )
+        )
         if shade.is_degenerate():
             return
         # Преобразование списка «просветов», если тень невырождена
         gaps = [s.subtraction(shade) for s in self.gaps]
-        self.gaps = [
-            s for s in reduce(add, gaps, []) if not s.is_degenerate()]
+        self.gaps = [s for s in reduce(add, gaps, []) if not s.is_degenerate()]
 
     # Преобразование одномерных координат в трёхмерные
     def r3(self, t):
@@ -77,12 +81,13 @@ class Edge:
             return Segment(Edge.SFIN, Edge.SBEG)
         if f0 < 0.0 and f1 < 0.0:
             return Segment(Edge.SBEG, Edge.SFIN)
-        x = - f0 / (f1 - f0)
+        x = -f0 / (f1 - f0)
         return Segment(Edge.SBEG, x) if f0 < 0.0 else Segment(x, Edge.SFIN)
 
 
 class Facet:
-    """ Грань полиэдра """
+    """Грань полиэдра"""
+
     # Параметры конструктора: список вершин
 
     def __init__(self, vertexes):
@@ -94,9 +99,9 @@ class Facet:
 
     # Нормаль к «горизонтальному» полупространству
     def h_normal(self):
-        n = (
-            self.vertexes[1] - self.vertexes[0]).cross(
-            self.vertexes[2] - self.vertexes[0])
+        n = (self.vertexes[1] - self.vertexes[0]).cross(
+            self.vertexes[2] - self.vertexes[0]
+        )
         return n * (-1.0) if n.dot(Polyedr.V) < 0.0 else n
 
     # Нормали к «вертикальным» полупространствам, причём k-я из них
@@ -108,25 +113,42 @@ class Facet:
     # Вспомогательный метод
     def _vert(self, k):
         n = (self.vertexes[k] - self.vertexes[k - 1]).cross(Polyedr.V)
-        return n * \
-            (-1.0) if n.dot(self.vertexes[k - 1] - self.center()) < 0.0 else n
+        return (
+            n * (-1.0)
+            if n.dot(self.vertexes[k - 1] - self.center()) < 0.0
+            else n
+        )
 
     # Центр грани
     def center(self):
-        return sum(self.vertexes, R3(0.0, 0.0, 0.0)) * \
-            (1.0 / len(self.vertexes))
+        return sum(self.vertexes, R3(0.0, 0.0, 0.0)) * (
+            1.0 / len(self.vertexes)
+        )
 
 
 class Polyedr:
-    """ Полиэдр """
+    """Полиэдр"""
+
     # вектор проектирования
     V = R3(0.0, 0.0, 1.0)
+
+    def is_point_good(self, x, y, z):
+        return 1 < x * x + y * y + z * z < 4
+
+    def print_sum_of_good_edges(self):
+        print(f"Sum of good edges is equal to {self.sum_of_good_edges}")
+        return self
+
+    def get_sum_of_good_edges(self):
+        return self.sum_of_good_edges
 
     # Параметры конструктора: файл, задающий полиэдр
     def __init__(self, file):
 
         # списки вершин, рёбер и граней полиэдра
         self.vertexes, self.edges, self.facets = [], [], []
+
+        self.sum_of_good_edges = 0
 
         # список строк файла
         with open(file) as f:
@@ -144,8 +166,9 @@ class Polyedr:
                 elif i < nv + 2:
                     # задание всех вершин полиэдра
                     x, y, z = (float(x) for x in line.split())
-                    self.vertexes.append(R3(x, y, z).rz(
-                        alpha).ry(beta).rz(gamma) * c)
+                    self.vertexes.append(
+                        R3(x, y, z).rz(alpha).ry(beta).rz(gamma) * c
+                    )
                 else:
                     # вспомогательный массив
                     buf = line.split()
@@ -155,7 +178,22 @@ class Polyedr:
                     vertexes = list(self.vertexes[int(n) - 1] for n in buf)
                     # задание рёбер грани
                     for n in range(size):
-                        self.edges.append(Edge(vertexes[n - 1], vertexes[n]))
+                        p1, p2 = vertexes[n - 1], vertexes[n]
+                        r1 = p1.rz(-gamma).ry(-beta).rz(-alpha) * (1 / c)
+                        r2 = p2.rz(-gamma).ry(-beta).rz(-alpha) * (1 / c)
+                        # print(p1.x,p2.x,p1.y,p2.y,p1.z,p2.z)
+                        # print(p1.x,p1.y,p1.z)
+                        # print(p2.x,p2.y,p2.z)
+                        if self.is_point_good(
+                            (r1.x + r2.x) / 2,
+                            (r1.y + r2.y) / 2,
+                            (r1.z + r2.z) / 2,
+                        ):
+                            dx = p1.x - p2.x
+                            dy = p1.y - p2.y
+                            self.sum_of_good_edges += sqrt(dx * dx + dy * dy)
+
+                        self.edges.append(Edge(p1, p2))
                     # задание самой грани
                     self.facets.append(Facet(vertexes))
 
@@ -167,3 +205,4 @@ class Polyedr:
                 e.shadow(f)
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
+        return self
