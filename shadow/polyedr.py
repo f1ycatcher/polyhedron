@@ -189,8 +189,8 @@ class Polyedr:
                             (r1.y + r2.y) / 2,
                             (r1.z + r2.z) / 2,
                         ):
-                            dx = p1.x - p2.x
-                            dy = p1.y - p2.y
+                            dx = r1.x - r2.x
+                            dy = r1.y - r2.y
                             self.sum_of_good_edges += sqrt(dx * dx + dy * dy)
 
                         self.edges.append(Edge(p1, p2))
