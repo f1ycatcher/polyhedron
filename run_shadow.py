@@ -14,6 +14,7 @@ try:
         "testfigure2",
         "testfigure3",
         "testfigure4",
+        "testfigure5",
         "ccc",
         "cube",
         "box",
@@ -23,7 +24,8 @@ try:
         print("=============================================================")
         print(f"Начало работы с полиэдром '{name}'")
         start_time = time()
-        Polyedr(f"data/{name}.geom").draw(tk).print_sum_of_good_edges()
+        p = Polyedr(f"data/{name}.geom").draw(tk)
+        print(f"Sum of good edges is equal to {p.get_sum_of_good_edges()}")
         delta_time = time() - start_time
         print(f"Изображение полиэдра '{name}' заняло {delta_time} сек.")
         input("Hit 'Return' to continue -> ")

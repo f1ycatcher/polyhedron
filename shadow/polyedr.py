@@ -135,10 +135,6 @@ class Polyedr:
     def is_point_good(self, x, y, z):
         return 1 < x * x + y * y + z * z < 4
 
-    def print_sum_of_good_edges(self):
-        print(f"Sum of good edges is equal to {self.sum_of_good_edges}")
-        return self
-
     def get_sum_of_good_edges(self):
         return self.sum_of_good_edges
 
